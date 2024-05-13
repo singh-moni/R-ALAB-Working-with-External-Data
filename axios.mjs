@@ -111,3 +111,43 @@ axios.interceptors.response.use(response => {
 }, error => {
   return Promise.reject(error);
 });
+
+// Define the progress bar div element
+const progressBar1 = document.getElementById("progressBar");
+
+// Request interceptor
+axios.interceptors.request.use(config => {
+    // Set the body element's cursor style to "progress"
+    document.body.style.cursor = 'progress';
+    // Reset the progress bar
+    progressBar1.style.width = '0%';
+    return config;
+});
+
+// Response interceptor
+axios.interceptors.response.use(response => {
+    // Set the body element's cursor style to "default"
+    document.body.style.cursor = 'default';
+    return response;
+}, error => {
+    // Set the body element's cursor style to "default" in case of error
+    document.body.style.cursor = 'default';
+    return Promise.reject(error);
+});
+
+// Define the updateProgress function
+function updateProgress(progressEvent) {
+    const progress = (progressEvent.loaded / progressEvent.total) * 100;
+    progressBar1.style.width = `${progress}%`;
+}
+
+// Add the updateProgress function to the onDownloadProgress option
+axios.get(url, {
+    onDownloadProgress: updateProgress
+})
+.then(response => {
+    // Handle response
+})
+.catch(error => {
+    // Handle error
+});
