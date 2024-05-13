@@ -151,3 +151,38 @@ axios.get(url, {
 .catch(error => {
     // Handle error
 });
+
+
+// Define the favourite function
+export async function favourite(imgId) {
+    try {
+        // Check if the image is already favourited
+        const response = await axios.get(`https://api.thecatapi.com/v1/favourites?image_id=${imgId}`, {
+            headers: {
+                'x-api-key': API_KEY
+            }
+        });
+
+        // If the image is already favourited, delete the favourite
+        if (response.data.length > 0) {
+            const favouriteId = response.data[0].id;
+            await axios.delete(`https://api.thecatapi.com/v1/favourites/${favouriteId}`, {
+                headers: {
+                    'x-api-key': API_KEY
+                }
+            });
+            console.log(`Unfavourited image with ID: ${imgId}`);
+        } else {
+            // If the image is not favourited, favourite it
+            await axios.post('https://api.thecatapi.com/v1/favourites', { image_id: imgId }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY
+                }
+            });
+            console.log(`Favourited image with ID: ${imgId}`);
+        }
+    } catch (error) {
+        console.error('Error toggling favourite:', error);
+    }
+}

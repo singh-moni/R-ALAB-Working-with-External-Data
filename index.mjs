@@ -45,7 +45,7 @@ breedSelect.addEventListener('change', async () => {
     const selectedBreedId = breedSelect.value;
 
     // Fetch information on the selected breed from the Cat API
-    const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedId}&limit=3`);
+    const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedId}`);
 
     // Convert the response to JSON format
     const breedInfo = await response.json();
@@ -155,9 +155,42 @@ breedSelect.addEventListener('change', async () => {
 * you delete that favourite using the API, giving this function "toggle" functionality.
 * - You can call this function by clicking on the heart at the top right of any image.
 */
+// Define the favourite function
 export async function favourite(imgId) {
-// your code here
+  try {
+      // Check if the image is already favourited
+      const response = await axios.get(`https://api.thecatapi.com/v1/favourites?image_id=${imgId}`, {
+          headers: {
+              'x-api-key': API_KEY
+          }
+      });
+
+      // If the image is already favourited, delete the favourite
+      if (response.data.length > 0) {
+          const favouriteId = response.data[0].id;
+          await axios.delete(`https://api.thecatapi.com/v1/favourites/${favouriteId}`, {
+              headers: {
+                  'x-api-key': API_KEY
+              }
+          });
+          console.log(`Unfavourited image with ID: ${imgId}`);
+      } else {
+          // If the image is not favourited, favourite it
+          await axios.post('https://api.thecatapi.com/v1/favourites', { image_id: imgId }, {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': API_KEY
+              }
+          });
+          console.log(`Favourited image with ID: ${imgId}`);
+      }
+  } catch (error) {
+      console.error('Error toggling favourite:', error);
+  }
 }
+
+// your code here
+
 /**
 * 9. Test your favourite() function by creating a getFavourites() function.
 * - Use Axios to get all of your favourites from the cat API.
