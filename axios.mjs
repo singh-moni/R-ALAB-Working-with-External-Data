@@ -1,3 +1,4 @@
+
 import * as Carousel from "./carousel.mjs";
 import axios from 'axios'; // Import Axios
 
@@ -45,8 +46,14 @@ breedSelect.addEventListener('change', async () => {
     // Retrieve the selected breed ID
     const selectedBreedId = breedSelect.value;
 
+    // Log the start of the request
+    console.log('Request started...');
+
     // Fetch information on the selected breed from the Cat API using Axios
     const response = await axios.get(`https://api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedId}&limit=3`);
+
+    // Log the end of the request
+    console.log('Request ended.');
 
     // Extract the data from the response
     const breedInfo = response.data;
@@ -84,18 +91,23 @@ breedSelect.addEventListener('change', async () => {
   }
 });
 
+// Add Axios request interceptor
+axios.interceptors.request.use(config => {
+  // Log the start time of the request
+  config.metadata = { startTime: new Date() };
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
 
-// Define the favourite function
-export async function favourite(imgId) {
-  // Your favourite function code here using Axios
-}
-
-// Define the getFavourites function
-function getFavourites() {
-  // Your getFavourites function code here using Axios
-}
-
-// Add an event listener to the getFavouritesBtn
-getFavouritesBtn.addEventListener('click', () => {
-  getFavourites();
+// Add Axios response interceptor
+axios.interceptors.response.use(response => {
+  // Calculate the time difference between request and response
+  const endTime = new Date();
+  const startTime = response.config.metadata.startTime;
+  const timeDifference = endTime - startTime;
+  console.log(`Time taken for request: ${timeDifference} ms`);
+  return response;
+}, error => {
+  return Promise.reject(error);
 });
